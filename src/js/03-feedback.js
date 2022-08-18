@@ -1,5 +1,3 @@
-//Зробити трай кеч, об'єкт форм дата, і підключити шаблонізацію через хбс
-
 import throttle from 'lodash.throttle';
 import {
   saveToLocalStorage,
@@ -9,17 +7,13 @@ import {
 
 const formRef = document.querySelector('.feedback-form');
 const LOCAL_STORAGE_KEY = 'feedback-form-state';
-const isLocalStorageEmpty = localStorage.getItem(LOCAL_STORAGE_KEY) === null;
-let userData = isLocalStorageEmpty
-  ? {}
-  : readFromLocalStorage(LOCAL_STORAGE_KEY);
-console.log(userData);
+const userData = readFromLocalStorage(LOCAL_STORAGE_KEY) || {};
 
 formRef.addEventListener('input', throttle(onFormRefChange, 500));
 formRef.addEventListener('submit', onFormRefSubmit);
 
-if (!isLocalStorageEmpty) {
-  setValuesToInputs(formRef);
+if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+  setValuesToInputs(formRef, userData);
 }
 
 function onFormRefChange(e) {
@@ -30,18 +24,13 @@ function onFormRefChange(e) {
 function onFormRefSubmit(e) {
   e.preventDefault();
   console.log(
-    localStorage.getItem(LOCAL_STORAGE_KEY) === null
-      ? 'No information in Local Storage'
-      : localStorage.getItem(LOCAL_STORAGE_KEY)
+    readFromLocalStorage(LOCAL_STORAGE_KEY) || 'No information in Local Storage'
   );
   e.currentTarget.reset();
-  userData = {};
   removeItemFromLocalStorage(LOCAL_STORAGE_KEY);
 }
 
-function setValuesToInputs(form) {
-  form.elements['email'].value =
-    userData.email === undefined ? '' : userData.email;
-  form.elements['message'].value =
-    userData.message === undefined ? '' : userData.message;
+function setValuesToInputs(form, data) {
+  form.elements.email.value = data.email || '';
+  form.elements.message.value = data.message || '';
 }
